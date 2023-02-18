@@ -1,0 +1,22 @@
+[package]
+name = "platformer"
+description = "A simple platformer game"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+repository = "https://github.com/rappet/platformer"
+readme = "README.md"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+macroquad = "0.3.25"
+
+[profile.dev]
+opt-level = 3
+
+[profile.release]
+strip = true
+lto = true
+opt-level = 3
+codegen-units = 1
