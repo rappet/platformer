@@ -11,7 +11,7 @@ pub const TEST_WORLD_STR: &str = include_str!("world.txt");
 
 /// Tilemap of the world
 pub struct World {
-    pub tiles: HashMap<(u16, u16), TileType>,
+    pub tiles: HashMap<(i32, i32), TileType>,
     pub entities: HashMap<EntityId, Entity>,
     pub last_entity_id: EntityId,
 }
@@ -25,7 +25,7 @@ impl World {
                 if c != ' ' {
                     let tile_type = TileType::from_char(c).expect("char not a known tile type");
                     #[allow(clippy::cast_possible_truncation)]
-                    tiles.insert((x as u16, y as u16), tile_type);
+                    tiles.insert((x as i32, y as i32), tile_type);
                 }
             });
         });
@@ -47,5 +47,18 @@ impl World {
 
         self.entities.insert(id, entity);
         id
+    }
+
+    pub fn collide_rect(&self, x: f32, y: f32, w: f32, h: f32) -> bool {
+        self.collide_point(x, y)
+            || self.collide_point(x + w, y)
+            || self.collide_point(x, y + h)
+            || self.collide_point(x + w, y + h)
+    }
+
+    pub fn collide_point(&self, x: f32, y: f32) -> bool {
+        self.tiles
+            .get(&(x.floor() as i32, y.floor() as i32))
+            .is_some()
     }
 }

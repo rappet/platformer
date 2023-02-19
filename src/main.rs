@@ -36,16 +36,43 @@ fn update(world: &mut World) {
         .expect("Player is always present");
 
     if is_key_down(KeyCode::W) || is_key_down(KeyCode::Up) {
-        player.y -= 60. / 16. / 10.;
+        player.dy -= 60. / 16. / 32.;
     }
     if is_key_down(KeyCode::S) || is_key_down(KeyCode::Down) {
-        player.y += 60. / 16. / 10.;
+        player.dy += 60. / 16. / 32.;
     }
     if is_key_down(KeyCode::A) || is_key_down(KeyCode::Left) {
-        player.x -= 60. / 16. / 10.;
+        player.dx -= 60. / 16. / 32.;
     }
     if is_key_down(KeyCode::D) || is_key_down(KeyCode::Right) {
-        player.x += 60. / 16. / 10.;
+        player.dx += 60. / 16. / 32.;
+    }
+
+    let d_speed = f32::sqrt(player.dx * player.dx + player.dy * player.dy) * 16. / 4.;
+    if d_speed > 1. {
+        player.dx /= d_speed;
+        player.dy /= d_speed;
+    }
+
+    let movements: Vec<_> = world
+        .entities
+        .iter()
+        .filter_map(|(id, entity)| {
+            let mut change = None;
+            for i in 0..16 {
+                let x = entity.x + entity.dx * (i as f32 / 16.);
+                let y = entity.y + entity.dy * (i as f32 / 16.);
+                if !world.collide_rect(x, y, 1., 1.) {
+                    change = Some((*id, x, y))
+                }
+            }
+            change
+        })
+        .collect();
+    for &(entity_id, x, y) in &movements {
+        let mut entity = world.entities.get_mut(&entity_id).expect("Entity exists");
+        entity.x = x;
+        entity.y = y;
     }
 }
 
