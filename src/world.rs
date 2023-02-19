@@ -24,8 +24,13 @@ impl World {
             line.chars().enumerate().for_each(|(x, c)| {
                 if c != ' ' {
                     let tile_type = TileType::from_char(c).expect("char not a known tile type");
-                    #[allow(clippy::cast_possible_truncation)]
-                    tiles.insert((x as i32, y as i32), tile_type);
+                    tiles.insert(
+                        (
+                            x.try_into().expect("Should not overflow"),
+                            y.try_into().expect("Should not overflow"),
+                        ),
+                        tile_type,
+                    );
                 }
             });
         });
@@ -57,6 +62,7 @@ impl World {
     }
 
     pub fn collide_point(&self, x: f32, y: f32) -> bool {
+        #[allow(clippy::cast_possible_truncation)]
         self.tiles
             .get(&(x.floor() as i32, y.floor() as i32))
             .is_some()

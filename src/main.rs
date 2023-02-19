@@ -48,6 +48,7 @@ fn update(world: &mut World) {
         player.dx += 60. / 16. / 32.;
     }
 
+    #[allow(clippy::suboptimal_flops)]
     let d_speed = f32::sqrt(player.dx * player.dx + player.dy * player.dy) * 16. / 4.;
     if d_speed > 1. {
         player.dx /= d_speed;
@@ -59,11 +60,12 @@ fn update(world: &mut World) {
         .iter()
         .filter_map(|(id, entity)| {
             let mut change = None;
+            #[allow(clippy::cast_precision_loss)]
             for i in 0..16 {
-                let x = entity.x + entity.dx * (i as f32 / 16.);
-                let y = entity.y + entity.dy * (i as f32 / 16.);
+                let x = entity.dx.mul_add(i as f32 / 16., entity.x);
+                let y = entity.dy.mul_add(i as f32 / 16., entity.y);
                 if !world.collide_rect(x, y, 1., 1.) {
-                    change = Some((*id, x, y))
+                    change = Some((*id, x, y));
                 }
             }
             change
